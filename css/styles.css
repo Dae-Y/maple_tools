@@ -897,3 +897,41 @@ button.save-button {
   color: white;
   box-shadow: 0 10px 20px rgba(5, 150, 105, 0.22);
 }
+
+.strategy-select-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0 10px;
+}
+
+.strategy-select-row label {
+  font-weight: 700;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.strategy-select-row .select-input {
+  max-width: 360px;
+}
+
+.strategy-description {
+  margin: 0 0 16px;
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+@media (max-width: 620px) {
+  .strategy-select-row {
+    display: block;
+  }
+
+  .strategy-select-row label {
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .strategy-select-row .select-input {
+    max-width: none;
+  }
+}

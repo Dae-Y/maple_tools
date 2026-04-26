@@ -4,6 +4,8 @@ const FALLBACK_ICON = `${ICON_BASE}fallback.png`;
 const AUCTION_FEE_RATE = 0.03;
 const STORAGE_KEY = "maple_mvp_calculator_state_v1";
 
+let latestPlanResults = null;
+
 const MVP_LEVELS = [
   {
     id: "bronze",
@@ -737,28 +739,71 @@ function formatMvpAndSpent(currentMvp, totalCashSpent) {
   `;
 }
 
-function runSimulation() {
-  const startingMileage = parseNumberInput($("currentMileage").value);
-  const waterRate = parseNumberInput($("waterRate").value);
-  const targetMvp = parseNumberInput($("selectedTargetMvp").value);
-  const currentMvpInput = calculateCurrentMvpFromTier().currentMvp;
-  const disableMileage = $("disableMileage").checked;
+function getTotalItemCount(plan) {
+  return Object.values(plan).reduce((sum, entry) => sum + entry.count, 0);
+}
 
-  const selectedTier = getSelectedTier();
-  const auctionPrices = getAuctionPrices();
+function getStrategyCandidates(items, auctionPrices, mileage, waterRate, disableMileage, strategy, itemCounts) {
+  return items
+    .map((item) => {
+      const auctionPrice = auctionPrices[item.id];
 
-  if (targetMvp <= 0 || waterRate <= 0) {
-    alert("목표 MVP 등급과 물통비율을 올바르게 입력해주세요.");
+      if (!auctionPrice || auctionPrice <= 0) {
+        return null;
+      }
+
+      if (strategy === "speed" && (itemCounts[item.id] ?? 0) >= 5) {
+        return null;
+      }
+
+      return calculateSinglePurchase(
+        item,
+        mileage,
+        auctionPrice,
+        waterRate,
+        disableMileage
+      );
+    })
+    .filter((candidate) => candidate !== null && candidate.actualCashSpent > 0);
+}
+
+function sortCandidates(candidates, strategy) {
+  if (strategy === "profit") {
+    candidates.sort((a, b) => {
+      if (b.efficiency !== a.efficiency) {
+        return b.efficiency - a.efficiency;
+      }
+
+      return b.actualCashSpent - a.actualCashSpent;
+    });
+
     return;
   }
 
-  const hasAnyAuctionPrice = Object.values(auctionPrices).some((price) => price > 0);
+  if (strategy === "speed") {
+    candidates.sort((a, b) => {
+      if (b.item.cashPrice !== a.item.cashPrice) {
+        return b.item.cashPrice - a.item.cashPrice;
+      }
 
-  if (!hasAnyAuctionPrice) {
-    alert("최소 1개 이상의 아이템 경매장 가격을 입력해주세요.");
-    return;
+      if (b.actualCashSpent !== a.actualCashSpent) {
+        return b.actualCashSpent - a.actualCashSpent;
+      }
+
+      return b.efficiency - a.efficiency;
+    });
   }
+}
 
+function simulatePurchasePlan({
+  strategy,
+  startingMileage,
+  waterRate,
+  targetMvp,
+  currentMvpInput,
+  disableMileage,
+  auctionPrices,
+}) {
   let mileage = startingMileage;
   let currentMvp = currentMvpInput;
 
@@ -769,48 +814,38 @@ function runSimulation() {
   let totalRecoveredCash = 0;
 
   const plan = {};
+  const itemCounts = {};
   const maxIterations = 100_000;
+
   let iterations = 0;
   let stoppedReason = "";
 
   while (currentMvp < targetMvp && iterations < maxIterations) {
     iterations++;
 
-    const candidates = ITEMS
-      .map((item) => {
-        const auctionPrice = auctionPrices[item.id];
-
-        if (!auctionPrice || auctionPrice <= 0) {
-          return null;
-        }
-
-        return calculateSinglePurchase(
-          item,
-          mileage,
-          auctionPrice,
-          waterRate,
-          disableMileage
-        );
-      })
-      .filter((candidate) => {
-        return candidate !== null && candidate.actualCashSpent > 0;
-      });
+    const candidates = getStrategyCandidates(
+      ITEMS,
+      auctionPrices,
+      mileage,
+      waterRate,
+      disableMileage,
+      strategy,
+      itemCounts
+    );
 
     if (candidates.length === 0) {
-      stoppedReason = "입력된 경매장 가격 기준으로 구매 가능한 아이템이 없어 계산이 중단되었습니다.";
+      stoppedReason = strategy === "speed"
+        ? "시간우선 조합은 동일 아이템 5개 제한 안에서 목표 MVP 금액을 달성하지 못했습니다. 더 많은 아이템 가격을 입력하거나 제한을 늘려야 합니다."
+        : "입력된 경매장 가격 기준으로 구매 가능한 아이템이 없어 계산이 중단되었습니다.";
       break;
     }
 
-    candidates.sort((a, b) => {
-      if (b.efficiency !== a.efficiency) {
-        return b.efficiency - a.efficiency;
-      }
-
-      return b.actualCashSpent - a.actualCashSpent;
-    });
+    sortCandidates(candidates, strategy);
 
     const best = candidates[0];
     const itemId = best.item.id;
+
+    itemCounts[itemId] = (itemCounts[itemId] ?? 0) + 1;
 
     mileage -= best.mileageUsed;
 
@@ -849,8 +884,8 @@ function runSimulation() {
   const actualCost = totalCashSpent - totalRecoveredCash;
   const mvpAchieved = currentMvp >= targetMvp;
 
-  renderResults({
-    selectedTier,
+  return {
+    strategy,
     actualCost,
     targetMvp,
     currentMvp,
@@ -861,27 +896,109 @@ function runSimulation() {
     totalMileageEarned,
     totalMesoAfterFee,
     totalRecoveredCash,
+    totalItemCount: getTotalItemCount(plan),
     plan,
     stoppedReason,
+  };
+}
+
+function runSimulation() {
+  const startingMileage = parseNumberInput($("currentMileage").value);
+  const waterRate = parseNumberInput($("waterRate").value);
+  const targetMvp = parseNumberInput($("selectedTargetMvp").value);
+  const currentMvpInput = calculateCurrentMvpFromTier().currentMvp;
+  const disableMileage = $("disableMileage").checked;
+
+  const selectedTier = getSelectedTier();
+  const auctionPrices = getAuctionPrices();
+
+  if (targetMvp <= 0 || waterRate <= 0) {
+    alert("목표 MVP 등급과 물통비율을 올바르게 입력해주세요.");
+    return;
+  }
+
+  const hasAnyAuctionPrice = Object.values(auctionPrices).some((price) => price > 0);
+
+  if (!hasAnyAuctionPrice) {
+    alert("최소 1개 이상의 아이템 경매장 가격을 입력해주세요.");
+    return;
+  }
+
+  const profitPlan = simulatePurchasePlan({
+    strategy: "profit",
+    startingMileage,
+    waterRate,
+    targetMvp,
+    currentMvpInput,
     disableMileage,
+    auctionPrices,
   });
+
+  const speedPlan = simulatePurchasePlan({
+    strategy: "speed",
+    startingMileage,
+    waterRate,
+    targetMvp,
+    currentMvpInput,
+    disableMileage,
+    auctionPrices,
+  });
+
+  latestPlanResults = {
+    selectedTier,
+    targetMvp,
+    disableMileage,
+    profitPlan,
+    speedPlan,
+  };
+
+  if ($("strategySelect")) {
+    $("strategySelect").value = "profit";
+  }
+
+  renderResults(latestPlanResults);
+  renderSelectedStrategyPlan("profit");
 }
 
 function renderResults(result) {
   $("resultSection").classList.remove("hidden");
+  renderStrategySummary("profit");
+}
+
+function getPlanResultByStrategy(strategy) {
+  if (!latestPlanResults) return null;
+
+  return strategy === "speed"
+    ? latestPlanResults.speedPlan
+    : latestPlanResults.profitPlan;
+}
+
+function getStrategyDisplayName(strategy) {
+  return strategy === "speed" ? "시간우선" : "이익우선";
+}
+
+function renderStrategySummary(strategy) {
+  if (!latestPlanResults) return;
+
+  const planResult = getPlanResultByStrategy(strategy);
+  const strategyName = getStrategyDisplayName(strategy);
+
+  $("resultTitle").textContent = `계산 결과 - ${strategyName} 계산 결과 기준입니다.`;
 
   $("summaryGrid").innerHTML = [
-    makeSummaryBox("목표 MVP 등급", `${result.selectedTier.name} / ${formatCompactCash(result.targetMvp)}`),
-    makeSummaryBox("실제 소모된 내 현금", formatKRW(result.actualCost)),
-    makeSummaryBox("총 MVP 누적 / 사용 캐시", formatMvpAndSpent(result.currentMvp, result.totalCashSpent)),
-    makeSummaryBox("총 회수 현금", formatKRW(result.totalRecoveredCash)),
-    makeSummaryBox("수수료 후 받은 총 메소", formatMeso(result.totalMesoAfterFee)),
-    makeSummaryBox("총 마일리지 사용", `${formatNumber(result.totalMileageUsed)} 마일리지`),
-    makeSummaryBox("총 마일리지 적립", `${formatNumber(result.totalMileageEarned)} 마일리지`),
-    makeSummaryBox("최종 마일리지", `${formatNumber(result.mileage)} 마일리지`),
+    makeSummaryBox("목표 MVP 등급", `${latestPlanResults.selectedTier.name} / ${formatCompactCash(latestPlanResults.targetMvp)}`),
+    makeSummaryBox("실제 소모된 내 현금", formatKRW(planResult.actualCost)),
+    makeSummaryBox("총 MVP 누적 / 사용 캐시", formatMvpAndSpent(planResult.currentMvp, planResult.totalCashSpent)),
+    makeSummaryBox("총 회수 현금", formatKRW(planResult.totalRecoveredCash)),
+    makeSummaryBox("수수료 후 받은 총 메소", formatMeso(planResult.totalMesoAfterFee)),
+    makeSummaryBox("총 마일리지 사용", `${formatNumber(planResult.totalMileageUsed)} 마일리지`),
+    makeSummaryBox("총 마일리지 적립", `${formatNumber(planResult.totalMileageEarned)} 마일리지`),
+    makeSummaryBox("최종 마일리지", `${formatNumber(planResult.mileage)} 마일리지`),
   ].join("");
+}
 
-  const rows = Object.values(result.plan)
+function renderPlanRows(plan) {
+  const rows = Object.values(plan)
     .sort((a, b) => b.totalCashSpent - a.totalCashSpent)
     .map((entry) => {
       return `
@@ -897,32 +1014,34 @@ function renderResults(result) {
     })
     .join("");
 
-  $("planTableBody").innerHTML = rows || `
+  return rows || `
     <tr>
       <td colspan="6">구매 가능한 조합이 없습니다.</td>
     </tr>
   `;
+}
 
+function renderStrategyNotes(planResult, disableMileage) {
   const notes = [];
 
-  if (result.mvpAchieved) {
+  if (planResult.mvpAchieved) {
     notes.push("목표 MVP 금액을 달성했습니다. MVP 누적은 마일리지 할인 후 실제 넥슨캐시가 차감된 금액 기준으로 계산했습니다.");
   } else {
-    notes.push("목표 MVP 금액을 달성하지 못했습니다. MVP 누적은 마일리지 할인 후 실제 넥슨캐시가 차감된 금액 기준으로 계산했습니다.");
+    notes.push("목표 MVP 금액을 달성하지 못했습니다. 입력값 또는 아이템 제한을 확인해보세요.");
   }
 
-  if (result.disableMileage) {
+  if (disableMileage) {
     notes.push("마일리지 미사용 옵션이 켜져 있어, 마일리지 할인 가능 아이템도 마일리지를 사용하지 않는 것으로 계산했습니다.");
   } else {
     notes.push("마일리지 할인 가능 아이템은 보유 마일리지 한도 내에서 최대 30%까지 사용하는 것으로 계산했습니다.");
   }
 
-  if (result.actualCost < 0) {
+  if (planResult.actualCost < 0) {
     notes.push("축하합니다. 이득보고 MVP작 하셨네요!");
   }
 
-  if (result.stoppedReason) {
-    notes.push(result.stoppedReason);
+  if (planResult.stoppedReason) {
+    notes.push(planResult.stoppedReason);
   }
 
   $("resultNote").innerHTML = `
@@ -930,6 +1049,28 @@ function renderResults(result) {
       ${notes.map((note) => `<li>${note}</li>`).join("")}
     </ul>
   `;
+}
+
+function renderSelectedStrategyPlan(strategy) {
+  if (!latestPlanResults) return;
+
+  const planResult = getPlanResultByStrategy(strategy);
+
+  renderStrategySummary(strategy);
+
+  $("planTableBody").innerHTML = renderPlanRows(planResult.plan);
+
+  if ($("strategyDescription")) {
+    if (strategy === "speed") {
+      $("strategyDescription").textContent =
+        "손실을 조금 감수하더라도 빠르게 MVP작을 끝내는 조합입니다. 동일 아이템은 최대 5개까지만 사용하고, 비싼 캐시템 위주로 계산합니다.";
+    } else {
+      $("strategyDescription").textContent =
+        "예상 손실을 최소화하는 구매 조합입니다. 다만 같은 아이템을 여러 개 팔아야 해서 시간이 오래 걸릴 수 있습니다.";
+    }
+  }
+
+  renderStrategyNotes(planResult, latestPlanResults.disableMileage);
 }
 
 function resetInputs() {
@@ -940,6 +1081,7 @@ function resetInputs() {
   }
 
   localStorage.removeItem(STORAGE_KEY);
+  latestPlanResults = null;
 
   for (let i = ITEMS.length - 1; i >= 0; i--) {
     if (ITEMS[i].isCustom) {
@@ -985,3 +1127,9 @@ $("calculateBtn").addEventListener("click", runSimulation);
 $("saveStateBtn").addEventListener("click", saveCalculatorState);
 $("resetBtn").addEventListener("click", resetInputs);
 $("addCustomItemBtn").addEventListener("click", addCustomItem);
+
+if ($("strategySelect")) {
+  $("strategySelect").addEventListener("change", (event) => {
+    renderSelectedStrategyPlan(event.target.value);
+  });
+}
