@@ -220,10 +220,29 @@ function formatCash(value) {
   return `${formatNumber(value)} 캐시`;
 }
 
+function formatCompactCash(value) {
+  const rounded = Math.round(value);
+
+  if (rounded === 0) return "0 캐시";
+
+  const man = Math.floor(rounded / 10_000);
+  const rest = rounded % 10_000;
+
+  if (man > 0 && rest > 0) {
+    return `${man}만 ${formatNumber(rest)} 캐시`;
+  }
+
+  if (man > 0) {
+    return `${man}만 캐시`;
+  }
+
+  return `${formatNumber(rest)} 캐시`;
+}
+
 function formatMeso(value) {
   const rounded = Math.round(value);
 
-  if (rounded === 0) return "0 메소";
+  if (rounded === 0) return "0";
 
   const eok = Math.floor(rounded / 100_000_000);
   const man = Math.floor((rounded % 100_000_000) / 10_000);
@@ -231,11 +250,11 @@ function formatMeso(value) {
 
   const parts = [];
 
-  if (eok > 0) parts.push(`${formatNumber(eok)}억`);
-  if (man > 0) parts.push(`${formatNumber(man)}만`);
-  if (rest > 0) parts.push(`${formatNumber(rest)}`);
+  if (eok > 0) parts.push(`${eok}억`);
+  if (man > 0) parts.push(`${man}만`);
+  if (rest > 0) parts.push(`${rest}`);
 
-  return `${parts.join(" ")} 메소`;
+  return parts.join(" ");
 }
 
 function parseNumberInput(value) {
@@ -707,6 +726,17 @@ function makeSummaryBox(label, value) {
   `;
 }
 
+function formatMvpAndSpent(currentMvp, totalCashSpent) {
+  if (Math.round(currentMvp) === Math.round(totalCashSpent)) {
+    return formatCompactCash(currentMvp);
+  }
+
+  return `
+    <div>누적 ${formatCompactCash(currentMvp)}</div>
+    <div>사용 ${formatCompactCash(totalCashSpent)}</div>
+  `;
+}
+
 function runSimulation() {
   const startingMileage = parseNumberInput($("currentMileage").value);
   const waterRate = parseNumberInput($("waterRate").value);
@@ -841,16 +871,14 @@ function renderResults(result) {
   $("resultSection").classList.remove("hidden");
 
   $("summaryGrid").innerHTML = [
-    makeSummaryBox("목표 MVP 등급", `${result.selectedTier.name} / ${formatCash(result.targetMvp)}`),
+    makeSummaryBox("목표 MVP 등급", `${result.selectedTier.name} / ${formatCompactCash(result.targetMvp)}`),
     makeSummaryBox("실제 소모된 내 현금", formatKRW(result.actualCost)),
-    makeSummaryBox("총 MVP 누적", formatCash(result.currentMvp)),
-    makeSummaryBox("총 캐시 사용", formatCash(result.totalCashSpent)),
+    makeSummaryBox("총 MVP 누적 / 사용 캐시", formatMvpAndSpent(result.currentMvp, result.totalCashSpent)),
     makeSummaryBox("총 회수 현금", formatKRW(result.totalRecoveredCash)),
     makeSummaryBox("수수료 후 받은 총 메소", formatMeso(result.totalMesoAfterFee)),
     makeSummaryBox("총 마일리지 사용", `${formatNumber(result.totalMileageUsed)} 마일리지`),
     makeSummaryBox("총 마일리지 적립", `${formatNumber(result.totalMileageEarned)} 마일리지`),
     makeSummaryBox("최종 마일리지", `${formatNumber(result.mileage)} 마일리지`),
-    makeSummaryBox("마일리지 사용 설정", result.disableMileage ? "미사용" : "사용"),
   ].join("");
 
   const rows = Object.values(result.plan)
