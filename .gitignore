@@ -1,0 +1,20 @@
+# Python virtual environment
+.venv/
+
+# Node modules (혹시 나중에 npm 쓰게 될 경우 대비)
+node_modules/
+
+# OS / Editor junk files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+
+# VSCode settings
+.vscode/
