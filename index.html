@@ -171,11 +171,24 @@
     </section>
 
     <section id="resultSection" class="card result-card hidden">
-      <h2>계산 결과</h2>
+      <h2 id="resultTitle">계산 결과</h2>
 
       <div id="summaryGrid" class="summary-grid"></div>
 
       <h3>추천 구매 조합</h3>
+
+      <div class="strategy-select-row">
+        <label for="strategySelect">계산 방식</label>
+        <select id="strategySelect" class="select-input">
+          <option value="profit">[1] 이익우선 - 예상 손실 최소화</option>
+          <option value="speed">[2] 시간우선 - 판매 개수 최소화</option>
+        </select>
+      </div>
+
+      <p id="strategyDescription" class="strategy-description">
+        예상 손실을 최소화하는 구매 조합입니다. 다만 같은 아이템을 여러 개 팔아야 해서 시간이 오래 걸릴 수 있습니다.
+      </p>
+
       <div class="table-wrap">
         <table>
           <thead>
