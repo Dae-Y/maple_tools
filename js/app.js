@@ -1036,6 +1036,8 @@ function renderStrategyNotes(planResult, disableMileage) {
     notes.push("마일리지 할인 가능 아이템은 보유 마일리지 한도 내에서 최대 30%까지 사용하는 것으로 계산했습니다.");
   }
 
+  notes.push("예상 손실의 마이너스 수치는 캐시템을 해당 가격에 판매하면 이득을 보는 것을 뜻합니다.");
+
   if (planResult.actualCost < 0) {
     notes.push("축하합니다. 이득보고 MVP작 하셨네요!");
   }
@@ -1048,6 +1050,27 @@ function renderStrategyNotes(planResult, disableMileage) {
     <ul>
       ${notes.map((note) => `<li>${note}</li>`).join("")}
     </ul>
+  `;
+}
+
+function renderStrategySummarySentence(planResult, strategy) {
+  const strategyName = strategy === "speed" ? "시간우선" : "이익우선";
+  const cashText = formatCompactCash(planResult.totalCashSpent);
+  const costText = formatKRW(Math.abs(planResult.actualCost));
+
+  let detail = "";
+
+  if (!planResult.mvpAchieved) {
+    detail = "현재 입력값 기준으로는 목표 MVP 등급 달성이 어려워 보입니다. 아이템 가격을 더 입력하거나 계산 방식을 바꿔보세요.";
+  } else if (planResult.actualCost < 0) {
+    detail = `현재 상황에선 ${cashText}를 사용해서 위 캐시 아이템을 팔고, 총합 대략 ${costText} 이득을 보면서 원하는 MVP 등급을 달성 가능해 보입니다.`;
+  } else {
+    detail = `현재 상황에선 ${cashText}를 사용해서 위 캐시 아이템을 팔고, 총합 대략 ${costText} 소모해서 원하는 MVP 등급을 달성 가능해 보입니다.`;
+  }
+
+  $("strategySummarySentence").innerHTML = `
+    <div class="summary-title">요약: ${strategyName}</div>
+    <div class="summary-detail">- ${detail}</div>
   `;
 }
 
@@ -1071,6 +1094,7 @@ function renderSelectedStrategyPlan(strategy) {
   }
 
   renderStrategyNotes(planResult, latestPlanResults.disableMileage);
+  renderStrategySummarySentence(planResult, strategy);
 }
 
 function resetInputs() {
