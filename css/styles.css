@@ -921,6 +921,28 @@ button.save-button {
   line-height: 1.6;
 }
 
+/* 계산결과 요약 */
+.strategy-summary-sentence {
+  margin-top: 16px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #fff7ed, #fffbeb);
+  border: 1px solid #fed7aa;
+  color: #92400e;
+  font-weight: 700;
+  line-height: 1.65;
+  box-shadow: 0 8px 20px rgba(146, 64, 14, 0.08);
+}
+
+.strategy-summary-sentence .summary-title {
+  margin-bottom: 6px;
+  font-weight: 800;
+}
+
+.strategy-summary-sentence .summary-detail {
+  font-weight: 700;
+}
+
 @media (max-width: 620px) {
   .strategy-select-row {
     display: block;
