@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="css/styles.css" />
   <script src="js/cashItems.js" defer></script>
   <script src="js/app.js" defer></script>
+  <script src="js/mesoMarket.js" defer></script>
 </head>
 
 <body>
@@ -213,6 +214,57 @@
       <!-- 요약 -->
       <div id="strategySummarySentence" class="strategy-summary-sentence"></div>
     </section>
+
+
+    <section class="card meso-market-card">
+      <div class="section-header">
+        <div>
+          <h2>메소마켓 루트 계산기</h2>
+          <ul class="section-help">
+            <li>넥슨캐시로 메이플포인트를 구매한 뒤, 메소마켓에서 메소를 사고 물통비율로 현금화하는 루트를 계산합니다.</li>
+            <li>경매장에 캐시 아이템을 올리고 기다리지 않아도 되는 대신, 메소마켓 시세에 따라 손실률이 달라집니다.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="meso-market-grid">
+        <label>
+          <span>사용할 넥슨캐시 / 메이플포인트</span>
+          <div class="input-with-unit">
+            <input id="mmPointBudget" type="text" inputmode="text" lang="ko" autocomplete="off" autocorrect="off"
+              autocapitalize="off" spellcheck="false" value="100000" />
+            <span>메포</span>
+          </div>
+        </label>
+
+        <label>
+          <span>메소마켓 구매 희망가격</span>
+          <div class="input-with-unit">
+            <input id="mmMarketRate" type="number" min="0" value="2444" />
+            <span>메포 / 1억 메소</span>
+          </div>
+        </label>
+
+        <label>
+          <span>물통비율</span>
+          <div class="input-with-unit">
+            <input id="mmWaterRate" type="number" min="0" value="1600" />
+            <span>원 / 1억 메소</span>
+          </div>
+        </label>
+
+        <button id="mmCalculateBtn" type="button" class="add-item-button">
+          메소마켓 계산
+        </button>
+      </div>
+
+      <div id="mmResultSection" class="meso-market-result hidden">
+        <div id="mmSummaryGrid" class="summary-grid"></div>
+
+        <div id="mmSummarySentence" class="strategy-summary-sentence"></div>
+      </div>
+    </section>
+
   </main>
 
   <footer class="footer">
