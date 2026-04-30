@@ -42,6 +42,8 @@ window.DEFAULT_CASH_ITEMS = [
     icon: "royal.png",
     mileageDiscount: false,
   },
+
+  /*
   {
     id: "royal_45",
     name: "로얄 45개",
@@ -56,6 +58,8 @@ window.DEFAULT_CASH_ITEMS = [
     icon: "wonderberry.webp",
     mileageDiscount: false,
   },
+  */
+
   {
     id: "wonderberry_11",
     name: "원더베리 11개",
@@ -63,6 +67,76 @@ window.DEFAULT_CASH_ITEMS = [
     icon: "wonderberry.webp",
     mileageDiscount: false,
   },
+
+  /*
+  {
+    id: "boutique_1",
+    name: "부티크 1개",
+    cashPrice: 3300,
+    icon: "boutique.png",
+    mileageDiscount: false,
+  },
+  */
+
+  {
+    id: "boutique_10",
+    name: "부티크 10개",
+    cashPrice: 33000,
+    icon: "boutique.png",
+    mileageDiscount: false,
+  },
+  {
+    id: "luna_crystal",
+    name: "루나 크리스탈",
+    cashPrice: 3900,
+    icon: "luna_crystal.webp",
+    mileageDiscount: false,
+  },
+
+  /*
+  {
+    id: "platinum_apple_1",
+    name: "플래 애플 1개",
+    cashPrice: 3500,
+    icon: "plat_apple.png",
+    mileageDiscount: false,
+  },
+  {
+    id: "platinum_apple_33",
+    name: "플래 애플 33개",
+    cashPrice: 99000,
+    icon: "plat_apple.png",
+    mileageDiscount: false,
+  },
+  */
+
+  {
+    id: "freestyle_1",
+    name: "프리스타일",
+    cashPrice: 5500,
+    icon: "freestyle.png",
+    mileageDiscount: false,
+  },
+
+  {
+    id: "option_scroll_1",
+    name: "추옵 스크롤",
+    cashPrice: 49000,
+    icon: "option_scroll.png",
+    mileageDiscount: false,
+  },
+
+  {
+    id: "jin_package_1",
+    name: "진 패키지 합",
+    cashPrice: 69800,
+    icon: "fallback.png",
+    mileageDiscount: false,
+  },
+
+
+
+
   {
     id: "scissors",
     name: "플래티넘 가위",
@@ -98,39 +172,9 @@ window.DEFAULT_CASH_ITEMS = [
     icon: "white_eye.png",
     mileageDiscount: true,
   },
-  {
-    id: "boutique_1",
-    name: "부티크 1개",
-    cashPrice: 3300,
-    icon: "boutique.png",
-    mileageDiscount: false,
-  },
-  {
-    id: "boutique_10",
-    name: "부티크 10개",
-    cashPrice: 33000,
-    icon: "boutique.png",
-    mileageDiscount: false,
-  },
-  {
-    id: "luna_crystal",
-    name: "루나 크리스탈",
-    cashPrice: 3900,
-    icon: "luna_crystal.webp",
-    mileageDiscount: false,
-  },
-  {
-    id: "platinum_apple_1",
-    name: "플래 애플 1개",
-    cashPrice: 3500,
-    icon: "plat_apple.png",
-    mileageDiscount: false,
-  },
-  {
-    id: "platinum_apple_33",
-    name: "플래 애플 33개",
-    cashPrice: 99000,
-    icon: "plat_apple.png",
-    mileageDiscount: false,
-  },
+
+
+
+
+
 ];
