@@ -18,3 +18,7 @@ Thumbs.db
 
 # VSCode settings
 .vscode/
+
+# Windows Zone Identifier files
+*:Zone.Identifier
+
