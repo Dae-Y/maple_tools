@@ -1926,3 +1926,151 @@ button.save-button {
   color: white;
   box-shadow: 0 4px 12px rgba(22, 163, 74, 0.2);
 }
+
+/* 자동 돌리기 목표 도움말 팝오버 */
+.goal-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.goal-title-row h2 {
+  margin: 0;
+}
+
+.goal-help-button {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(124, 58, 237, 0.35);
+  background: rgba(124, 58, 237, 0.08);
+  color: #7c3aed;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.goal-help-button:hover,
+.goal-help-button:focus {
+  background: #7c3aed;
+  color: #ffffff;
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.25);
+  outline: none;
+}
+
+.goal-help-popover {
+  display: none;
+  position: absolute;
+  z-index: 50;
+  top: 34px;
+  left: 0;
+  width: 440px;
+  max-width: calc(100vw - 32px);
+  padding: 16px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  box-shadow: 0 12px 30px rgba(31, 41, 55, 0.16);
+  color: #374151;
+  font-size: 0.84rem;
+  line-height: 1.6;
+  text-align: left;
+}
+
+.goal-help-popover-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #5b21b6;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.goal-help-popover p {
+  margin: 0 0 12px 0;
+}
+
+.goal-help-popover strong {
+  color: #111827;
+}
+
+.goal-help-example {
+  background: #f9fafb;
+  border: 1px solid #f3f4f6;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+.goal-help-example strong {
+  display: block;
+  font-size: 0.82rem;
+  margin-bottom: 4px;
+  color: #4b5563;
+}
+
+.goal-help-example ul {
+  margin: 0;
+  padding-left: 16px;
+  list-style-type: disc;
+}
+
+.goal-help-example li {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.goal-help-example span {
+  color: #7c3aed;
+  font-weight: 600;
+}
+
+.goal-help-popover-note {
+  border-top: 1px dashed rgba(124, 58, 237, 0.15);
+  padding-top: 10px;
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: #6d28d9;
+  font-weight: 700;
+}
+
+/* Hover and focus-within states for desktop */
+.goal-title-row:hover .goal-help-popover,
+.goal-title-row:focus-within .goal-help-popover,
+.goal-help-popover.open {
+  display: block;
+}
+
+/* Responsive adjustment for small viewports */
+@media (max-width: 640px) {
+  .goal-help-popover {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    max-width: 100%;
+    margin-top: 10px;
+    box-shadow: none;
+    background: #fbfbfe;
+    border: 1px solid rgba(124, 58, 237, 0.12);
+  }
+  
+  /* On mobile, we only display if open class is added */
+  .goal-title-row:hover .goal-help-popover,
+  .goal-title-row:focus-within .goal-help-popover {
+    display: none;
+  }
+  
+  .goal-help-popover.open {
+    display: block;
+  }
+}

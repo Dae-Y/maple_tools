@@ -136,6 +136,36 @@ window.cubeSimulatorState = (function () {
       });
     }
 
+    // 4. Goal Help Popover Events
+    const goalHelpBtn = document.getElementById("goalHelpBtn");
+    const goalHelpPopover = document.getElementById("goalHelpPopover");
+    if (goalHelpBtn && goalHelpPopover) {
+      const closePopover = () => {
+        goalHelpPopover.classList.remove("open");
+        goalHelpBtn.setAttribute("aria-expanded", "false");
+      };
+
+      goalHelpBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const isOpen = goalHelpPopover.classList.toggle("open");
+        goalHelpBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      });
+
+      // Close on clicking outside
+      document.addEventListener("click", (e) => {
+        if (!goalHelpBtn.contains(e.target) && !goalHelpPopover.contains(e.target)) {
+          closePopover();
+        }
+      });
+
+      // Close on Escape key
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          closePopover();
+        }
+      });
+    }
+
     window.addEventListener("cubeSim:autoRollEnd", (e) => {
       updateAutoButtonState(false);
       const detail = e.detail;

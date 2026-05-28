@@ -23,7 +23,8 @@
             <img src="assets/brand/maple_logo.jpg" alt="MapleStory logo" class="brand-icon" />
             <span>MapleStory Cube Simulator</span>
           </div>
-          <a class="hero-source-link" href="https://maplestory.nexon.com/Guide/OtherProbability/cube/black" target="_blank" rel="noopener noreferrer">
+          <a class="hero-source-link" href="https://maplestory.nexon.com/Guide/OtherProbability/cube/black"
+            target="_blank" rel="noopener noreferrer">
             출처: 메이플스토리 공식 확률형 아이템 · 공식 확률표 ↗
           </a>
         </div>
@@ -53,7 +54,7 @@
       <div class="cube-control-grid">
         <section class="cube-sim-card">
           <h2>설정</h2>
-          
+
           <div class="cube-control-row" style="grid-template-columns: 1fr; margin-bottom: 14px;">
             <label>
               <span>잠재능력 재설정 종류</span>
@@ -80,7 +81,7 @@
                 <option value="250">250</option>
               </select>
             </label>
-            
+
             <label>
               <span>장비 부위</span>
               <select id="partsType" class="select-input">
@@ -111,7 +112,42 @@
 
         <!-- 자동 돌리기 설정 카드 -->
         <section class="cube-sim-card">
-          <h2>자동 돌리기 목표 설정</h2>
+          <div class="goal-title-row">
+            <h2>자동 돌리기 목표 설정</h2>
+            <button id="goalHelpBtn" class="goal-help-button" type="button" aria-label="자동 돌리기 목표 설정 도움말"
+              aria-expanded="false">
+              ?
+            </button>
+            <div id="goalHelpPopover" class="goal-help-popover" role="tooltip">
+              <div class="goal-help-popover-title">💡 목표 설정 방식 도움말</div>
+              <p>
+                <strong>정확한 줄 목표</strong>와 <strong>추가 목표 분류</strong>는 <strong>함께</strong> 적용됩니다.<br />
+                즉, 설정한 조건을 전부 만족해야 자동 돌리기가 멈춥니다.
+              </p>
+              <div class="goal-help-example">
+                <strong>예시 1) 공12 / 공12 / 공12 만 원할 때</strong>
+                <ul>
+                  <li>첫째줄: <span>공격력 +12%</span></li>
+                  <li>둘째줄: <span>공격력 +12%</span></li>
+                  <li>셋째줄: <span>공격력 +12%</span></li>
+                  <li>추가 목표 분류: <span>사용 안 함</span></li>
+                </ul>
+              </div>
+              <div class="goal-help-example">
+                <strong>예시 2) 공12 / 공9 / 공9 이상을 원할 때</strong>
+                <ul>
+                  <li>첫째줄: <span>공격력 +12%</span></li>
+                  <li>둘째줄: <span>상관 없음</span></li>
+                  <li>셋째줄: <span>상관 없음</span></li>
+                  <li>추가 목표 분류: <span>공격력 %</span></li>
+                  <li>필요 줄수: <span>3줄</span></li>
+                </ul>
+              </div>
+              <div class="goal-help-popover-note">
+                즉, 공30% 이상을 원한다면 “첫째줄 공12 + 공격력% 3줄”로 설정하세요.
+              </div>
+            </div>
+          </div>
           <p style="color: #6b7280; font-size: 13px; margin: -8px 0 16px; line-height: 1.45;">
             특정 줄의 정확한 옵션을 지정하거나, 공격력/보공/드메 같은 옵션 분류가 몇 줄 이상 나올 때 멈추도록 설정할 수 있습니다.
           </p>
@@ -174,7 +210,7 @@
       <div class="cube-control-grid" style="gap: 24px;">
         <section class="cube-sim-card">
           <h2>잠재능력 재설정 결과</h2>
-          
+
           <!-- Top Row: Current Option and action buttons -->
           <div class="cube-result-header-row">
             <!-- 현재 옵션 -->
@@ -230,10 +266,12 @@
               <div class="cube-stat-box">
                 <div class="cube-stat-label" id="rollCountTag">재설정 횟수: 0회</div>
                 <div class="cube-stat-value" id="mesoTag">소모 메소: 0 메소</div>
-                <div id="azmosTag" style="display: none; color: #6b7280; font-size: 13px; margin-top: 8px; font-weight: 700;">아즈모스 협곡 1만점: 0주 분량</div>
+                <div id="azmosTag"
+                  style="display: none; color: #6b7280; font-size: 13px; margin-top: 8px; font-weight: 700;">아즈모스 협곡
+                  1만점: 0주 분량</div>
               </div>
             </div>
-            
+
             <div id="cubeStatusMsg" class="cube-status-message" style="display: none;"></div>
           </section>
 
@@ -270,7 +308,8 @@
               <span class="living-tip-index" id="tipIndexLabel">1 / 8</span>
               <button class="living-tip-nav-button" id="tipPrevBtn" type="button" title="이전 팁">‹</button>
               <button class="living-tip-nav-button" id="tipNextBtn" type="button" title="다음 팁">›</button>
-              <button class="living-tip-pause-button" id="tipPauseBtn" type="button" title="자동 재생 일시정지" aria-label="자동 재생 일시정지">⏸</button>
+              <button class="living-tip-pause-button" id="tipPauseBtn" type="button" title="자동 재생 일시정지"
+                aria-label="자동 재생 일시정지">⏸</button>
             </div>
           </div>
           <div class="living-tip-body" id="livingTipBody">
