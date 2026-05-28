@@ -55,3 +55,22 @@ Then visit:
 * `http://localhost:8000/` (Main Hub)
 * `http://localhost:8000/mvp-calculator.html` (MVP Calculator)
 * `http://localhost:8000/cube-simulator.html` (Cube Simulator)
+
+---
+
+## Updating Cube Probability Data
+
+To update the local cube probability JSON files from the official MapleStory probability endpoint, run:
+
+```bash
+node scripts/update-cube-probabilities.mjs
+```
+
+> [!NOTE]
+> This script runs locally in Node.js (Node 18+ built-in `fetch`) without any external `npm` dependencies. It fetches official MapleStory Legendary potential tables from the Nexon endpoint, performs validation on option sums, and safely overwrites:
+> * `data/cube-simulator/bcprobs.json`
+> * `data/cube-simulator/wcprobs.json`
+> * `data/cube-simulator/acprobs.json`
+>
+> The website itself uses these static JSON files rather than fetching Nexon directly at runtime to prevent browser CORS block issues.
+
