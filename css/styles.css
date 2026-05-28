@@ -52,14 +52,14 @@ label span {
     radial-gradient(circle at 85% 15%, rgba(252, 211, 77, 0.32), transparent 26%),
     linear-gradient(135deg, #3b82f6 0%, #7c3aed 48%, #ec4899 100%);
   color: white;
-  padding: 36px 20px;
+  padding: 22px 20px;
 }
 
 .hero::after {
   content: "";
   position: absolute;
-  inset: auto -80px -130px -80px;
-  height: 190px;
+  inset: auto -80px -110px -80px;
+  height: 60px;
   background: rgba(255, 255, 255, 0.13);
   filter: blur(10px);
   transform: rotate(-3deg);
@@ -561,11 +561,23 @@ th {
 }
 
 .footer-notices {
-  padding: 18px 20px;
-  border: 1px solid #e5e7eb;
-  border-radius: 18px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 14px 18px;
+  border-radius: 14px;
   background: #ffffff;
+  border: 1px solid #e5e7eb;
   line-height: 1.6;
+  font-size: 12.5px;
+}
+
+.footer-notices-ko,
+.footer-notices-en {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  margin: 0;
 }
 
 .footer-notices p {
@@ -1785,7 +1797,8 @@ button.save-button {
 
 /* 리빙 포인트 정보 카드 스타일 */
 .living-tip-card {
-  background: #f0fdf4 !important; /* Soft green theme for tips */
+  background: #f0fdf4 !important;
+  /* Soft green theme for tips */
   border: 1px solid #bbf7d0 !important;
   box-shadow: 0 10px 25px rgba(22, 163, 74, 0.04) !important;
 }
@@ -1970,10 +1983,9 @@ button.save-button {
   display: none;
   position: absolute;
   z-index: 50;
-  top: 34px;
-  left: 0;
-  width: 440px;
-  max-width: calc(100vw - 32px);
+  top: -10px;
+  left: calc(100% + 16px);
+  width: min(440px, 42vw);
   padding: 16px;
   border-radius: 14px;
   background: #ffffff;
@@ -1983,6 +1995,19 @@ button.save-button {
   font-size: 0.84rem;
   line-height: 1.6;
   text-align: left;
+}
+
+.goal-help-popover::before {
+  content: "";
+  position: absolute;
+  left: -7px;
+  top: 24px;
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border-left: 1px solid rgba(124, 58, 237, 0.2);
+  border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+  transform: rotate(45deg);
 }
 
 .goal-help-popover-title {
@@ -2051,7 +2076,7 @@ button.save-button {
 }
 
 /* Responsive adjustment for small viewports */
-@media (max-width: 640px) {
+@media (max-width: 900px) {
   .goal-help-popover {
     position: relative;
     top: 0;
@@ -2063,14 +2088,185 @@ button.save-button {
     background: #fbfbfe;
     border: 1px solid rgba(124, 58, 237, 0.12);
   }
-  
+
+  .goal-help-popover::before {
+    display: none;
+  }
+
   /* On mobile, we only display if open class is added */
   .goal-title-row:hover .goal-help-popover,
   .goal-title-row:focus-within .goal-help-popover {
     display: none;
   }
-  
+
   .goal-help-popover.open {
     display: block;
+  }
+}
+
+/* --- 메인 허브 히어로 캐릭터 및 후원 버튼 스타일 --- */
+.hero-main-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 32px;
+  width: 100%;
+}
+
+.hero-text-block {
+  flex: 0 1 auto;
+  min-width: 0;
+  z-index: 2;
+}
+
+.hero-character {
+  position: absolute;
+  left: 43%;
+  bottom: -6px;
+  width: clamp(120px, 13vw, 175px);
+  height: auto;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 12px 22px rgba(31, 41, 55, 0.22));
+  z-index: 1;
+}
+
+.hero-side-block {
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 12px;
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+/* 후원 메뉴 스타일 */
+.support-menu-wrap {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  z-index: 60;
+}
+
+.support-button {
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  backdrop-filter: blur(10px);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(31, 41, 55, 0.16);
+  font-size: 0.88rem;
+  transition: all 0.25s ease;
+  font-family: inherit;
+}
+
+.support-button:hover,
+.support-button:focus {
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 255, 255, 0.6);
+  transform: translateY(-2px);
+  outline: none;
+}
+
+.support-menu[hidden] {
+  display: none !important;
+}
+
+.support-menu {
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 12px);
+  transform: translateY(-50%);
+  min-width: 132px;
+  padding: 7px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  box-shadow: 0 14px 30px rgba(31, 41, 55, 0.18);
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/* 말풍선 꼬리 */
+.support-menu::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: -6px;
+  width: 12px;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.97);
+  border-top: 1px solid rgba(148, 163, 184, 0.28);
+  border-right: 1px solid rgba(148, 163, 184, 0.28);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.support-menu a {
+  display: block;
+  padding: 7px 10px;
+  border-radius: 9px;
+  color: #374151;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.82rem;
+  text-align: center;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.support-menu a:hover {
+  background: rgba(124, 58, 237, 0.09);
+  color: #5b21b6;
+}
+
+/* 좁은 화면에서는 왼쪽 말풍선이 화면 밖으로 나갈 수 있어서 아래로 fallback */
+@media (max-width: 760px) {
+  .support-menu {
+    top: calc(100% + 8px);
+    right: 0;
+    transform: none;
+  }
+
+  .support-menu::after {
+    top: -6px;
+    right: 24px;
+    transform: rotate(-45deg);
+  }
+}
+
+/* 768px 이하 모바일 디바이스 반응형 대응 */
+@media (max-width: 768px) {
+  .hero-main-row {
+    flex-wrap: wrap;
+    gap: 18px;
+  }
+
+  .hero-character {
+    width: clamp(90px, 24vw, 130px);
+  }
+
+  .hero-side-block {
+    margin-left: 0;
+    width: 100%;
+    align-items: flex-start;
+  }
+
+  .support-menu-wrap {
+    align-items: center;
+  }
+
+  .support-menu {
+    right: 50%;
+    transform: translateX(50%);
   }
 }
