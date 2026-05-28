@@ -85,3 +85,17 @@ data/cube-simulator/acprobs.json
 이 프로젝트는 개인 제작 팬 도구입니다.  
 넥슨에서 공식 지원하거나 운영하는 페이지가 아닙니다.  
 계산 결과와 시뮬레이션 결과는 참고용입니다.
+
+
+## License
+
+이 프로젝트의 소스코드와 자체 제작 구성은 All rights reserved입니다.  
+사전 허가 없이 복사, 수정, 재배포, 상업적 이용, 별도 서비스 운영에 사용할 수 없습니다.
+
+MapleStory 및 관련 아이콘/이미지/게임 데이터의 권리는 Nexon에 있습니다.
+
+
+The source code and original project structure are All rights reserved.  
+You may not copy, modify, redistribute, commercialize, or host this project as a separate service without prior permission.
+
+MapleStory and related icons, images, names, and game data belong to Nexon.
