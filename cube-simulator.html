@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>큐브 시뮬레이터 - 준비 중</title>
+  <title>큐브 시뮬레이터</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 
@@ -30,22 +30,214 @@
       </h1>
 
       <p class="subtitle">
-        큐브 옵션 확률과 예상 비용 계산 기능을 추가할 예정입니다.
+        공식 확률 데이터를 기반으로 장비 잠재능력 재설정 결과를 시뮬레이션합니다.
       </p>
     </div>
   </header>
 
   <main class="container">
-    <section class="card coming-soon-card" style="text-align: center; padding: 60px 20px; box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);">
-      <div style="font-size: 64px; margin-bottom: 20px; animation: pulse 2s infinite;">🎲</div>
-      <h2 style="font-size: 28px; margin-bottom: 12px; color: #111827;">준비 중입니다</h2>
-      <p style="color: #6b7280; font-size: 16px; margin-bottom: 32px; max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.6;">
-        나중에 큐브 옵션 확률, 목표 옵션까지의 예상 비용, 시뮬레이션 기능을 추가할 예정입니다.
-      </p>
-      <a href="index.html" class="back-home-btn">
-        메이플 도구함으로 돌아가기
-      </a>
-    </section>
+    <!-- 에러 메시지 표시 영역 -->
+    <div id="cubeStatusMessage" style="display: none;"></div>
+
+    <div class="cube-layout">
+      <!-- 사이드바: 설정 영역 -->
+      <div class="cube-control-grid">
+        <section class="cube-sim-card">
+          <h2>설정</h2>
+          
+          <div class="cube-control-row" style="grid-template-columns: 1fr; margin-bottom: 14px;">
+            <label>
+              <span>잠재능력 재설정 종류</span>
+              <div class="cube-radio-group">
+                <label class="cube-radio-btn">
+                  <input type="radio" name="cubeKind" value="black" checked />
+                  <span>윗잠재 (블랙큐브)</span>
+                </label>
+                <label class="cube-radio-btn">
+                  <input type="radio" name="cubeKind" value="meister" />
+                  <span>명장의 큐브</span>
+                </label>
+                <label class="cube-radio-btn">
+                  <input type="radio" name="cubeKind" value="addi" />
+                  <span>에디셔널 잠재</span>
+                </label>
+              </div>
+            </label>
+          </div>
+
+          <div class="cube-control-row" style="margin-bottom: 14px;">
+            <label>
+              <span>아이템 레벨</span>
+              <select id="itemLevel" class="select-input">
+                <option value="100">100</option>
+                <option value="120">120</option>
+                <option value="130">130</option>
+                <option value="140">140</option>
+                <option value="150">150</option>
+                <option value="160">160</option>
+                <option value="200" selected>200</option>
+                <option value="250">250</option>
+              </select>
+            </label>
+            
+            <label>
+              <span>장비 부위</span>
+              <select id="partsType" class="select-input">
+                <option value="1">무기</option>
+                <option value="2">엠블렘</option>
+                <option value="3">보조무기</option>
+                <option value="4">포스실드/소울링</option>
+                <option value="5">방패</option>
+                <option value="6">모자</option>
+                <option value="7">상의</option>
+                <option value="8">한벌옷</option>
+                <option value="9">하의</option>
+                <option value="10">신발</option>
+                <option value="11">장갑</option>
+                <option value="12">망토</option>
+                <option value="13">벨트</option>
+                <option value="14">어깨장식</option>
+                <option value="15">얼굴장식</option>
+                <option value="16">눈장식</option>
+                <option value="17">귀고리</option>
+                <option value="18">반지</option>
+                <option value="19">펜던트</option>
+                <option value="20">기계심장</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="cube-control-row" style="grid-template-columns: 1fr;">
+            <label>
+              <span>목표 주스탯</span>
+              <div class="cube-stat-grid">
+                <label class="cube-radio-btn">
+                  <input type="radio" name="mainStat" value="STR" checked />
+                  <span>STR</span>
+                </label>
+                <label class="cube-radio-btn">
+                  <input type="radio" name="mainStat" value="DEX" />
+                  <span>DEX</span>
+                </label>
+                <label class="cube-radio-btn">
+                  <input type="radio" name="mainStat" value="INT" />
+                  <span>INT</span>
+                </label>
+                <label class="cube-radio-btn">
+                  <input type="radio" name="mainStat" value="LUK" />
+                  <span>LUK</span>
+                </label>
+                <label class="cube-radio-btn">
+                  <input type="radio" name="mainStat" value="ALL" />
+                  <span>ALL</span>
+                </label>
+              </div>
+            </label>
+          </div>
+        </section>
+
+        <!-- 자동 돌리기 설정 카드 -->
+        <section class="cube-sim-card">
+          <h2>자동 돌리기 목표 (키워드)</h2>
+          <p style="color: #6b7280; font-size: 13px; margin: -8px 0 16px; line-height: 1.45;">
+            원하는 옵션 키워드와 최소 한 줄수를 지정하여 멈추게 설정할 수 있습니다.
+          </p>
+
+          <div class="cube-control-grid">
+            <label>
+              <span>목표 옵션 키워드</span>
+              <input id="autoGoalKeyword" class="text-input" type="text" placeholder="예: STR, 공격력, 크리티컬 데미지" />
+            </label>
+
+            <label>
+              <span>필요 줄수</span>
+              <select id="autoGoalCount" class="select-input">
+                <option value="1">1줄 이상</option>
+                <option value="2" selected>2줄 이상</option>
+                <option value="3">3줄</option>
+              </select>
+            </label>
+          </div>
+        </section>
+      </div>
+
+      <!-- 메인 화면: 옵션 결과 및 통계 -->
+      <div class="cube-control-grid" style="gap: 24px;">
+        <section class="cube-sim-card">
+          <h2>잠재능력 재설정 결과</h2>
+          
+          <div class="cube-result-grid">
+            <!-- 현재 옵션 -->
+            <div class="cube-option-box current" id="box-current">
+              <div class="cube-option-title">현재 옵션</div>
+              <div class="cube-option-inner">
+                <div id="lines-current"></div>
+              </div>
+            </div>
+
+            <!-- 후보 1 -->
+            <div class="cube-option-box candidate" id="box-roll1" data-choice="1">
+              <div class="cube-option-title">재설정 1 (클릭하여 선택)</div>
+              <div class="cube-option-inner">
+                <div id="lines-roll1"></div>
+              </div>
+            </div>
+
+            <!-- 후보 2 -->
+            <div class="cube-option-box candidate" id="box-roll2" data-choice="2">
+              <div class="cube-option-title">재설정 2 (클릭하여 선택)</div>
+              <div class="cube-option-inner">
+                <div id="lines-roll2"></div>
+              </div>
+            </div>
+
+            <!-- 후보 3 -->
+            <div class="cube-option-box candidate" id="box-roll3" data-choice="3">
+              <div class="cube-option-title">재설정 3 (클릭하여 선택)</div>
+              <div class="cube-option-inner">
+                <div id="lines-roll3"></div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px; flex-wrap: wrap;">
+            <button class="btn secondary" id="resetBtn">시뮬레이터 초기화</button>
+            <button class="btn secondary" id="autoRollBtn">자동 돌리기 시작</button>
+            <button class="btn" id="rollBtn">3회 재설정 하기</button>
+          </div>
+        </section>
+
+        <!-- 통계 및 로그 -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start;">
+          <!-- 재설정 현황 -->
+          <section class="cube-sim-card" style="margin-bottom: 0; height: 100%;">
+            <h2>재설정 현황</h2>
+            <div class="cube-stats-grid">
+              <div class="cube-stat-box">
+                <div class="cube-stat-label" id="rollCountTag">재설정 횟수: 0회</div>
+                <div class="cube-stat-value" id="mesoTag">소모 메소: 0 메소</div>
+                <div id="azmosTag" style="display: none; color: #6b7280; font-size: 13px; margin-top: 8px; font-weight: 700;">아즈모스 협곡 1만점: 0주 분량</div>
+              </div>
+            </div>
+            
+            <div style="margin-top: 16px;">
+              <span class="badge" id="cubeTypeTag" style="margin-left: 0; padding: 4px 12px; font-size: 13px;">
+                윗잠재 (블랙큐브)
+              </span>
+            </div>
+          </section>
+
+          <!-- 최근 로그 -->
+          <section class="cube-sim-card" style="margin-bottom: 0; height: 100%;">
+            <h2 style="display: flex; justify-content: space-between; align-items: center;">
+              <span>최근 100회 로그</span>
+              <button class="log-toggle-btn" id="toggleLogBtn">펼치기</button>
+            </h2>
+            <div class="cube-log" id="log" style="display: none;"></div>
+          </section>
+        </div>
+      </div>
+    </div>
   </main>
 
   <footer class="footer" style="text-align: center; margin-top: 60px;">
@@ -53,6 +245,13 @@
       <p>© 2026 끗르. All rights reserved.</p>
     </div>
   </footer>
+
+  <!-- 스크립트 임포트 순서 -->
+  <script src="js/cube-simulator/cubeData.js" defer></script>
+  <script src="js/cube-simulator/cubeRoller.js" defer></script>
+  <script src="js/cube-simulator/cubeGoals.js" defer></script>
+  <script src="js/cube-simulator/autoRoll.js" defer></script>
+  <script src="js/cube-simulator/cubeSimulator.js" defer></script>
 </body>
 
 </html>
