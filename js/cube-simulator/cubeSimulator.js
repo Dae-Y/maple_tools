@@ -1,5 +1,5 @@
 // js/cube-simulator/cubeSimulator.js
-window.cubeSimulatorState = (function() {
+window.cubeSimulatorState = (function () {
   let rollCount = 0;
   let mesoUsed = 0;
   let meisterUsed = 0;
@@ -22,10 +22,13 @@ window.cubeSimulatorState = (function() {
   };
 })();
 
-(function() {
+(function () {
   const CUBE_ID_BLACK = "5062010";   // 블랙 큐브
   const CUBE_ID_ADDI = "5062500";    // 에디셔널 큐브
   const CUBE_ID_MEISTER = "2711004"; // 명장의 큐브
+
+  // Disabled because Azmos Canyon is no longer available in the current game.
+  const SHOW_AZMOS_ESTIMATE = false;
 
   let currentLines = [];
   let rollCandidates = [[], [], []];
@@ -37,9 +40,13 @@ window.cubeSimulatorState = (function() {
     try {
       await window.cubeData.load();
       initCurrentOption();
-      updateCubeTag();
+      updateCubeHelperText(getSelectedCubeId());
       updateStatsTags();
+      renderLog();
       updateLogVisibility();
+      if (window.CubeTips) {
+        window.CubeTips.init();
+      }
     } catch (err) {
       console.error("큐브 시뮬레이터 초기화 실패:", err);
     }
@@ -63,25 +70,37 @@ window.cubeSimulatorState = (function() {
       });
     });
 
-    document.querySelectorAll('input[name="cubeKind"]').forEach(r => {
-      r.addEventListener("change", () => {
-        window.cubeSimulatorState.resetStats();
-        updateCubeTag();
-        initCurrentOption();
-        window.autoRoll.clearHighlights();
-      });
+    document.getElementById("cubeTypeSelect").addEventListener("change", () => {
+      const cubeId = getSelectedCubeId();
+      window.cubeSimulatorState.resetStats();
+      updateCubeHelperText(cubeId);
+      initCurrentOption();
+      window.autoRoll.clearHighlights();
+      showStatusMsg(null); // Clear status msg
     });
 
     document.getElementById("itemLevel").addEventListener("change", () => {
       window.cubeSimulatorState.resetStats();
       initCurrentOption();
       window.autoRoll.clearHighlights();
+      showStatusMsg(null); // Clear status msg
     });
 
     document.getElementById("partsType").addEventListener("change", () => {
       window.cubeSimulatorState.resetStats();
       initCurrentOption();
       window.autoRoll.clearHighlights();
+      showStatusMsg(null); // Clear status msg
+    });
+
+    // Rebuild UI highlights if goals change manually
+    ["goalLine1", "goalLine2", "goalLine3", "goalCategory", "goalCategoryCount"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener("change", () => {
+          renderAllBoxes();
+        });
+      }
     });
 
     document.getElementById("toggleLogBtn").addEventListener("click", () => {
@@ -89,12 +108,28 @@ window.cubeSimulatorState = (function() {
       updateLogVisibility();
     });
 
+    const logLimitSelect = document.getElementById("logLimitSelect");
+    if (logLimitSelect) {
+      logLimitSelect.addEventListener("change", () => {
+        renderLog();
+      });
+    }
+
+    const clearLogBtn = document.getElementById("clearLogBtn");
+    if (clearLogBtn) {
+      clearLogBtn.addEventListener("click", () => {
+        logEntries = [];
+        renderLog();
+      });
+    }
+
     // 3. Auto-Roll Events Bindings
     const autoRollBtn = document.getElementById("autoRollBtn");
     if (autoRollBtn) {
       autoRollBtn.addEventListener("click", () => {
         if (window.autoRoll.getIsRunning()) {
           window.autoRoll.stop();
+          showStatusMsg("⚠️ 자동 돌리기를 중단했습니다.", "warning");
         } else {
           startAutoRollSequence();
         }
@@ -105,17 +140,94 @@ window.cubeSimulatorState = (function() {
       updateAutoButtonState(false);
       const detail = e.detail;
       if (detail.reached) {
-        // Log target completion
+        // Find the log entry corresponding to the winning candidate
         const idx = detail.index;
-        const cand = rollCandidates[idx];
-        const logMsg = `🎉 [자동 돌리기 목표 달성] #${window.cubeSimulatorState.getStats().rollCount}회째: ${cand.map(l => l.optionText).join(" | ")}`;
-        appendLogEntry(logMsg);
-        
+        const count = window.cubeSimulatorState.getStats().rollCount;
+        const targetRollNumber = count - (2 - idx);
+
+        const entry = logEntries.find(ent => ent.rollNumber === targetRollNumber);
+        if (entry) {
+          entry.isHit = true;
+          renderLog();
+        }
+
+        showStatusMsg("목표 옵션 달성! 재설정을 중단합니다.", "success");
+
         // Auto-select the successful candidate
         setTimeout(() => chooseCandidate(idx), 800);
+      } else if (detail.limit) {
+        showStatusMsg("⚠️ 최대 반복 횟수(10만 회)에 도달했지만 목표 옵션을 달성하지 못했습니다.", "warning");
+      } else if (detail.error) {
+        showStatusMsg("⚠️ 재설정 중 오류가 발생했거나 해당 조합의 데이터가 존재하지 않습니다.", "warning");
       }
     });
   });
+
+  // Helper text dynamically updated
+  function updateCubeHelperText(cubeId) {
+    const el = document.getElementById("cubeHelperText");
+    if (!el) return;
+
+    let text = "";
+    if (cubeId === CUBE_ID_BLACK) {
+      text = `윗잠 (블큐): 블랙 큐브 계열 확률입니다. 같은 이름이 포함된 카르마/이벤트 큐브도 동일한 확률을 사용합니다.`;
+    } else if (cubeId === CUBE_ID_MEISTER) {
+      text = `윗잠 (명큐 / 골큐): 명장의 큐브와 골드 큐브 계열 확률입니다. 같은 이름이 포함된 카르마/이벤트 큐브도 동일한 확률을 사용합니다.`;
+    } else if (cubeId === CUBE_ID_ADDI) {
+      text = `아랫잠 (에디셔널): 에디셔널 잠재능력 재설정 및 에디셔널/화이트 에디셔널 큐브 계열 확률입니다. 카르마/이벤트 큐브도 동일한 확률을 사용합니다.`;
+    }
+
+    el.innerHTML = `${text}<br><span class="cube-helper-note">※ 확률은 공식 확률표의 반올림 표기를 기준으로 계산됩니다.</span>`;
+  }
+
+  // Inline status message handler
+  function showStatusMsg(text, type) {
+    const el = document.getElementById("cubeStatusMsg");
+    if (!el) return;
+    if (!text) {
+      el.style.display = "none";
+      el.innerHTML = "";
+      return;
+    }
+    el.style.display = "block";
+    el.className = `cube-status-message cube-status-${type}`;
+    el.innerHTML = text;
+  }
+
+  // Check empty state
+  function checkEmptyPool() {
+    const cubeItemID = getSelectedCubeId();
+    const partsType = getSelectedPartsType();
+    const reqLev = getSelectedLevel();
+
+    const pool1 = window.cubeData.getBasePool(cubeItemID, partsType, reqLev, 1);
+    const isEmpty = !pool1 || pool1.length === 0;
+
+    const rollBtn = document.getElementById("rollBtn");
+    const autoRollBtn = document.getElementById("autoRollBtn");
+    const statusArea = document.getElementById("cubeStatusMessage");
+
+    if (isEmpty) {
+      rollBtn.disabled = true;
+      autoRollBtn.disabled = true;
+      if (statusArea) {
+        statusArea.style.display = "block";
+        statusArea.innerHTML = `
+          <div style="background: #fef3c7; color: #b45309; padding: 16px; border-radius: 12px; border: 1px solid #fde68a; margin-bottom: 20px; font-size: 14px; font-weight: 700; line-height: 1.5;">
+            ⚠️ 선택한 큐브/부위/레벨 조합의 확률 데이터가 없습니다.
+          </div>
+        `;
+      }
+    } else {
+      rollBtn.disabled = false;
+      autoRollBtn.disabled = false;
+      if (statusArea) {
+        statusArea.style.display = "none";
+        statusArea.innerHTML = "";
+      }
+    }
+    return isEmpty;
+  }
 
   // Main roll mechanics
   function initCurrentOption() {
@@ -123,12 +235,22 @@ window.cubeSimulatorState = (function() {
     const partsType = getSelectedPartsType();
     const reqLev = getSelectedLevel();
 
+    // Rebuild exact line targets dynamically
+    window.cubeGoals.populateLineTargetSelects(cubeItemID, partsType, reqLev);
+
+    const isEmpty = checkEmptyPool();
+    if (isEmpty) {
+      currentLines = [];
+      rollCandidates = [[], [], []];
+      renderAllBoxes();
+      return;
+    }
+
     const first = window.cubeRoller.rollOneSet(cubeItemID, partsType, reqLev, []);
     if (!first) {
       currentLines = [];
       rollCandidates = [[], [], []];
       renderAllBoxes();
-      alert("해당 장비 레벨 및 부위 조합의 공식 확률 데이터가 존재하지 않습니다. 다른 장비 조건을 선택해 주세요.");
       return;
     }
 
@@ -138,6 +260,9 @@ window.cubeSimulatorState = (function() {
   }
 
   function doOneRollStep() {
+    // Clear status on manual roll starts
+    showStatusMsg(null);
+
     const cubeItemID = getSelectedCubeId();
     const partsType = getSelectedPartsType();
     const reqLev = getSelectedLevel();
@@ -148,25 +273,21 @@ window.cubeSimulatorState = (function() {
     const cand3 = window.cubeRoller.rollOneSet(cubeItemID, partsType, reqLev, currentLines);
 
     if (!cand1 || !cand2 || !cand3) {
-      alert("해당 조합의 데이터가 부족하여 큐브를 재설정할 수 없습니다.");
+      showStatusMsg("⚠️ 해당 조합의 데이터가 부족하여 큐브를 재설정할 수 없습니다.", "warning");
       return null;
     }
 
     rollCandidates = [cand1, cand2, cand3];
-    
+
     // Compute costs
     const cost = getCostPerSet(reqLev, cubeItemID);
     window.cubeSimulatorState.incrementStats(cubeKind, 3, cost);
 
     // Logging entries
     const count = window.cubeSimulatorState.getStats().rollCount;
-    const label = cubeKind === "addi" ? "에디" : "윗";
-    const partText = document.getElementById("partsType").selectedOptions[0].text;
-    const header = `[${count - 2}~${count}회] ${partText} (${label})`;
-    const l1 = `  1) ${cand1.map(l => l.optionText).join(" | ")}`;
-    const l2 = `  2) ${cand2.map(l => l.optionText).join(" | ")}`;
-    const l3 = `  3) ${cand3.map(l => l.optionText).join(" | ")}`;
-    appendLogEntry(`${header}\n${l1}\n${l2}\n${l3}`);
+    addLogEntry(count - 2, cand1.map(l => l.optionText));
+    addLogEntry(count - 1, cand2.map(l => l.optionText));
+    addLogEntry(count, cand3.map(l => l.optionText));
 
     updateStatsTags();
     renderAllBoxes();
@@ -205,10 +326,11 @@ window.cubeSimulatorState = (function() {
   function handleReset() {
     window.cubeSimulatorState.resetStats();
     logEntries = [];
-    document.getElementById("log").textContent = "";
+    renderLog();
     initCurrentOption();
     updateStatsTags();
     window.autoRoll.clearHighlights();
+    showStatusMsg(null); // Clear status message
   }
 
   // Cost calculators
@@ -218,19 +340,56 @@ window.cubeSimulatorState = (function() {
       { min: 250, max: 300, cost: 50000000 },
       { min: 200, max: 249, cost: 45000000 },
       { min: 160, max: 199, cost: 42500000 },
-      { min: 1,   max: 159, cost: 40000000 }
+      { min: 1, max: 159, cost: 40000000 }
     ];
     const tableAddi = [
       { min: 250, max: 300, cost: 98000000 },
       { min: 200, max: 249, cost: 88000000 },
       { min: 160, max: 199, cost: 83000000 },
-      { min: 1,   max: 159, cost: 78000000 }
+      { min: 1, max: 159, cost: 78000000 }
     ];
     const table = isAddi ? tableAddi : tableMain;
     for (const row of table) {
       if (level >= row.min && level <= row.max) return row.cost;
     }
     return table[table.length - 1].cost;
+  }
+
+  // UI render bindings
+  const POTENTIAL_ICON_BASE = "assets/potential/";
+
+  const POTENTIAL_GRADE_ICONS = {
+    rare: `${POTENTIAL_ICON_BASE}rare.png`,
+    epic: `${POTENTIAL_ICON_BASE}epic.png`,
+    unique: `${POTENTIAL_ICON_BASE}unique.png`,
+    legendary: `${POTENTIAL_ICON_BASE}legendary.png`,
+  };
+
+  function getPotentialGradeIconForOption(optionText, lineNumber) {
+    if (!optionText) return POTENTIAL_GRADE_ICONS.legendary;
+
+    const cleanOpt = optionText.trim();
+    const cubeItemID = getSelectedCubeId();
+    const partsType = getSelectedPartsType();
+    const reqLev = getSelectedLevel();
+
+    // 1. Fetch Line 1 Option Pool
+    const line1Pool = window.cubeData.getBasePool(cubeItemID, partsType, reqLev, 1);
+
+    // 2. Check if the optionText is in the Line 1 (Legendary) pool
+    const isLegendary = line1Pool.some(r => (r.optionText || "").trim() === cleanOpt);
+
+    if (isLegendary) {
+      return POTENTIAL_GRADE_ICONS.legendary;
+    }
+
+    // Default to unique for line 2/3 if it's not a legendary-tier option
+    if (lineNumber === 2 || lineNumber === 3) {
+      return POTENTIAL_GRADE_ICONS.unique;
+    }
+
+    // Default fallback
+    return lineNumber === 1 ? POTENTIAL_GRADE_ICONS.legendary : POTENTIAL_GRADE_ICONS.unique;
   }
 
   // UI render bindings
@@ -242,16 +401,56 @@ window.cubeSimulatorState = (function() {
       return;
     }
 
-    const keyword = document.getElementById("autoGoalKeyword").value.trim();
-    for (const l of lines) {
+    const goal = window.cubeGoals.getGoalFromUI();
+    const hasGoal = goal.category || goal.exactLines[1] || goal.exactLines[2] || goal.exactLines[3];
+
+    for (let i = 0; i < lines.length; i++) {
+      const l = lines[i];
       const div = document.createElement("div");
       div.className = "cube-line";
-      div.textContent = l.optionText;
 
-      // Highlight hit lines matching search term
-      if (keyword && l.optionText.includes(keyword)) {
-        div.className += " hit";
+      const lineNum = i + 1;
+      const iconPath = getPotentialGradeIconForOption(l.optionText, lineNum);
+
+      // Create icon image element
+      const iconImg = document.createElement("img");
+      iconImg.className = "potential-grade-icon";
+      iconImg.src = iconPath;
+
+      let altText = "Unique";
+      if (iconPath.includes("legendary")) altText = "Legendary";
+      else if (iconPath.includes("epic")) altText = "Epic";
+      else if (iconPath.includes("rare")) altText = "Rare";
+      iconImg.alt = altText;
+
+      // Text span element
+      const textSpan = document.createElement("span");
+      textSpan.textContent = l.optionText;
+
+      div.appendChild(iconImg);
+      div.appendChild(textSpan);
+
+      if (hasGoal) {
+        let isHit = false;
+
+        // Check exact option text match
+        if (goal.exactLines[lineNum] && l.optionText.trim() === goal.exactLines[lineNum].trim()) {
+          isHit = true;
+        }
+
+        // Check category regex match
+        if (goal.category) {
+          const matcher = window.cubeGoals.getCategoryMatcher(goal.category);
+          if (matcher(l.optionText.trim())) {
+            isHit = true;
+          }
+        }
+
+        if (isHit) {
+          div.className += " hit";
+        }
       }
+
       elem.appendChild(div);
     }
   }
@@ -277,19 +476,83 @@ window.cubeSimulatorState = (function() {
     });
   }
 
-  function appendLogEntry(text) {
-    logEntries.unshift(text);
-    if (logEntries.length > 100) logEntries.pop();
-    document.getElementById("log").textContent = logEntries.join("\n");
+  function renderLog() {
+    const logEl = document.getElementById("log");
+    if (!logEl) return;
+    logEl.innerHTML = "";
+
+    if (!logEntries || logEntries.length === 0) {
+      const emptyEl = document.createElement("div");
+      emptyEl.className = "cube-log-empty";
+      emptyEl.textContent = "아직 재설정 로그가 없습니다.";
+      logEl.appendChild(emptyEl);
+      return;
+    }
+
+    const limitSelect = document.getElementById("logLimitSelect");
+    const limit = limitSelect ? Number(limitSelect.value) : 100;
+    const displayEntries = logEntries.slice(0, limit);
+
+    displayEntries.forEach(entry => {
+      const entryEl = document.createElement("div");
+      entryEl.className = "cube-log-entry" + (entry.isHit ? " hit" : "");
+
+      const titleEl = document.createElement("div");
+      titleEl.className = "cube-log-title";
+
+      const titleSpan = document.createElement("span");
+      titleSpan.textContent = `#${entry.rollNumber}회째`;
+      titleEl.appendChild(titleSpan);
+
+      if (entry.isHit) {
+        const badgeEl = document.createElement("span");
+        badgeEl.className = "cube-log-hit-icon";
+        badgeEl.textContent = "💡";
+        badgeEl.title = "목표 달성";
+        badgeEl.setAttribute("aria-label", "목표 달성");
+        titleEl.appendChild(badgeEl);
+      }
+
+      entryEl.appendChild(titleEl);
+
+      entry.options.forEach((opt, idx) => {
+        const lineEl = document.createElement("div");
+        lineEl.className = "cube-log-line";
+
+        const lineNum = idx + 1;
+        const iconPath = getPotentialGradeIconForOption(opt, lineNum);
+
+        // Icon Image
+        const iconImg = document.createElement("img");
+        iconImg.className = "potential-grade-icon";
+        iconImg.src = iconPath;
+
+        let altText = "Unique";
+        if (iconPath.includes("legendary")) altText = "Legendary";
+        else if (iconPath.includes("epic")) altText = "Epic";
+        else if (iconPath.includes("rare")) altText = "Rare";
+        iconImg.alt = altText;
+
+        // Text Span
+        const textSpan = document.createElement("span");
+        textSpan.textContent = opt;
+
+        lineEl.appendChild(iconImg);
+        lineEl.appendChild(textSpan);
+
+        entryEl.appendChild(lineEl);
+      });
+
+      logEl.appendChild(entryEl);
+    });
   }
 
-  function updateCubeTag() {
-    const cubeKind = getSelectedCubeKind();
-    const tagSpan = document.getElementById("cubeTypeTag").querySelector("span:last-child");
-
-    if (cubeKind === "addi") tagSpan.textContent = "에디셔널 잠재";
-    else if (cubeKind === "meister") tagSpan.textContent = "명장의 큐브";
-    else tagSpan.textContent = "윗잠재 (블랙큐브)";
+  function addLogEntry(rollNumber, options, isHit = false) {
+    logEntries.unshift({ rollNumber, options, isHit });
+    if (logEntries.length > 200) {
+      logEntries.pop();
+    }
+    renderLog();
   }
 
   function updateStatsTags() {
@@ -304,9 +567,13 @@ window.cubeSimulatorState = (function() {
       countEl.textContent = `소모된 명장의 큐브: ${stats.meisterUsed}개`;
       costEl.style.display = "none";
       if (azmosEl) {
-        azmosEl.style.display = "block";
-        const weeks = Math.ceil(stats.meisterUsed / 29);
-        azmosEl.textContent = `아즈모스 협곡 1만점: ${weeks}주 분량`;
+        if (SHOW_AZMOS_ESTIMATE) {
+          azmosEl.style.display = "block";
+          const weeks = Math.ceil(stats.meisterUsed / 29);
+          azmosEl.textContent = `아즈모스 협곡 1만점: ${weeks}주 분량`;
+        } else {
+          azmosEl.style.display = "none";
+        }
       }
     } else {
       countEl.textContent = `재설정 횟수: ${stats.rollCount}회`;
@@ -355,25 +622,29 @@ window.cubeSimulatorState = (function() {
     return Number(document.getElementById("partsType").value);
   }
 
+  // CubeKind is read directly from select value
   function getSelectedCubeKind() {
-    const el = document.querySelector('input[name="cubeKind"]:checked');
-    return el ? el.value : "black";
+    const val = document.getElementById("cubeTypeSelect").value;
+    if (val === CUBE_ID_ADDI) return "addi";
+    if (val === CUBE_ID_MEISTER) return "meister";
+    return "black";
   }
 
   function getSelectedCubeId() {
-    const kind = getSelectedCubeKind();
-    if (kind === "addi") return CUBE_ID_ADDI;
-    if (kind === "meister") return CUBE_ID_MEISTER;
-    return CUBE_ID_BLACK;
+    return document.getElementById("cubeTypeSelect").value;
   }
 
   // Start Auto Roll Sequence
   function startAutoRollSequence() {
-    const keyword = document.getElementById("autoGoalKeyword").value.trim();
-    const count = Number(document.getElementById("autoGoalCount").value);
+    // Clear status msg on auto-roll start
+    showStatusMsg(null);
 
-    if (!keyword) {
-      alert("자동 돌리기에 사용할 키워드(예: STR, 공격력, 크리티컬)를 입력해 주세요!");
+    const goal = window.cubeGoals.getGoalFromUI();
+    const hasExact = goal.exactLines[1] || goal.exactLines[2] || goal.exactLines[3];
+    const hasCategory = !!goal.category;
+
+    if (!hasExact && !hasCategory) {
+      showStatusMsg("⚠️ 자동 돌리기 목표를 하나 이상 선택해주세요.", "warning");
       return;
     }
 
@@ -381,7 +652,8 @@ window.cubeSimulatorState = (function() {
 
     const checkGoal = () => {
       for (let i = 0; i < 3; i++) {
-        if (window.cubeGoals.matchKeywordGoal(rollCandidates[i], keyword, count)) {
+        const evalResult = window.cubeGoals.evaluateGoal(rollCandidates[i], goal);
+        if (evalResult.reached) {
           return { reached: true, index: i };
         }
       }
@@ -406,6 +678,12 @@ window.cubeSimulatorState = (function() {
     document.getElementById("resetBtn").disabled = running;
     document.getElementById("itemLevel").disabled = running;
     document.getElementById("partsType").disabled = running;
-    document.querySelectorAll('input[name="cubeKind"]').forEach(r => r.disabled = running);
+    document.getElementById("cubeTypeSelect").disabled = running;
+
+    // Disable goal dropdowns to prevent user edits mid-flight
+    ["goalLine1", "goalLine2", "goalLine3", "goalCategory", "goalCategoryCount"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.disabled = running;
+    });
   }
 })();

@@ -1161,10 +1161,13 @@ button.save-button {
 
 /* 애니메이션 */
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
     opacity: 1;
   }
+
   50% {
     transform: scale(1.08);
     opacity: 0.95;
@@ -1248,7 +1251,7 @@ button.save-button {
   transition: all 0.2s ease;
 }
 
-.cube-radio-btn input[type="radio"]:checked + span {
+.cube-radio-btn input[type="radio"]:checked+span {
   background: #f0fdf4;
   border-color: #16a34a;
   color: #15803d;
@@ -1368,7 +1371,7 @@ button.save-button {
 /* 골드 히트 글로우 애니메이션 */
 .cube-option-box.auto-hit {
   border-color: #f59e0b;
-  box-shadow: 
+  box-shadow:
     0 0 20px rgba(245, 158, 11, 0.35),
     0 0 40px rgba(245, 158, 11, 0.15),
     0 12px 30px rgba(0, 0, 0, 0.25);
@@ -1382,13 +1385,15 @@ button.save-button {
   0% {
     box-shadow: 0 0 0 rgba(245, 158, 11, 0);
   }
+
   50% {
-    box-shadow: 
+    box-shadow:
       0 0 30px rgba(245, 158, 11, 0.85),
       0 0 60px rgba(245, 158, 11, 0.45);
   }
+
   100% {
-    box-shadow: 
+    box-shadow:
       0 0 20px rgba(245, 158, 11, 0.35),
       0 0 40px rgba(245, 158, 11, 0.15);
   }
@@ -1474,11 +1479,450 @@ button.save-button {
   gap: 6px;
 }
 
-.auto-goal-inputs select, 
+.auto-goal-inputs select,
 .auto-goal-inputs input {
   padding: 8px 10px;
   border-radius: 10px;
   border: 1px solid #d1d5db;
   font-size: 13px;
   font-family: inherit;
+}
+
+/* 큐브 시뮬레이터 신규 자동설정 & 출처 링크 스타일 */
+.hero-source-link {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+  transition: color 0.2s ease;
+  margin-top: 4px;
+}
+
+.hero-source-link:hover {
+  color: rgba(255, 255, 255, 0.95);
+  text-decoration: underline;
+}
+
+.goal-line-grid {
+  grid-template-columns: 1fr !important;
+}
+
+.goal-category-grid {
+  grid-template-columns: 2fr 1fr !important;
+}
+
+@media (max-width: 640px) {
+  .goal-category-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* 큐브 설명 헬퍼 텍스트 */
+.cube-helper-text {
+  font-size: 11.5px;
+  color: #374151;
+  /* Darker neutral for improved readability */
+  line-height: 1.5;
+  margin-top: 8px;
+  background: rgba(243, 244, 246, 0.5);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.cube-helper-text .cube-helper-note {
+  font-size: 11px;
+  color: #374151;
+  /* Slightly darker and stronger note */
+  font-weight: 500;
+  display: block;
+  margin-top: 4px;
+}
+
+/* 큐브 자동 돌리기 상태 영역 */
+.cube-status-message {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.cube-status-success {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.cube-status-warning {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+/* 큐브 결과 레이아웃 Refinement */
+.cube-result-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.cube-current-option-card {
+  flex: 1;
+  max-width: calc(33.333% - 11px);
+  min-width: 250px;
+}
+
+.cube-action-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.cube-action-row button {
+  padding: 8px 12px;
+  font-size: 0.86rem;
+  white-space: nowrap;
+}
+
+.cube-candidate-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.cube-candidate-card {
+  min-width: 0;
+}
+
+/* 최근 로그 Refinement */
+.cube-log-entry {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+}
+
+.cube-log-entry:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.cube-log-title {
+  font-size: 11px;
+  color: #9ca3af;
+  font-weight: 700;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cube-log-line {
+  font-size: 12px;
+  color: #e5e7eb;
+  padding: 1px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cube-log-entry.hit {
+  background: rgba(251, 191, 36, 0.06);
+  border-color: rgba(251, 191, 36, 0.2);
+}
+
+.cube-log-entry.hit .cube-log-title {
+  color: #fbbf24;
+}
+
+.cube-log-badge {
+  background: #fbbf24;
+  color: #111827;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 4px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+/* 큐브 로그 헤더 및 컨트롤 */
+.cube-log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #f3f4f6;
+  padding-bottom: 8px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.cube-log-header h2.cube-log-title {
+  margin: 0;
+  border-bottom: none;
+  padding-bottom: 0;
+  font-size: 20px;
+}
+
+.cube-log-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.log-limit-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: #4b5563;
+  font-weight: 700;
+}
+
+.compact-select {
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 0.82rem;
+  background-color: white;
+  cursor: pointer;
+  outline: none;
+}
+
+.log-toggle-button,
+.log-clear-button {
+  padding: 6px 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border-radius: 999px;
+  border: 1px solid #4f46e5;
+  background: transparent;
+  color: #4f46e5;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.log-toggle-button:hover {
+  background: #4f46e5;
+  color: white;
+}
+
+.log-clear-button {
+  border-color: #6b7280;
+  color: #6b7280;
+}
+
+.log-clear-button:hover {
+  background: #6b7280;
+  color: white;
+}
+
+/* 큐브 로그 💡 히트 아이콘 및 엠프티 상태 */
+.cube-log-hit-icon {
+  font-size: 11px;
+  margin-left: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cube-log-empty {
+  color: #9ca3af;
+  font-size: 13px;
+  text-align: center;
+  padding: 24px 12px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+/* Option lines with potential grade icons styling */
+.cube-line {
+  display: flex !important;
+  align-items: center;
+  gap: 6px;
+}
+
+.potential-grade-icon {
+  width: 12px;
+  height: 12px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 680px) {
+  .cube-result-header-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .cube-current-option-card {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .cube-action-row {
+    flex-wrap: wrap;
+    justify-content: stretch;
+  }
+
+  .cube-action-row button {
+    flex: 1 1 auto;
+  }
+
+  .cube-candidate-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 리빙 포인트 정보 카드 스타일 */
+.living-tip-card {
+  background: #f0fdf4 !important; /* Soft green theme for tips */
+  border: 1px solid #bbf7d0 !important;
+  box-shadow: 0 10px 25px rgba(22, 163, 74, 0.04) !important;
+}
+
+.living-tip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #dcfce7 !important;
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+}
+
+.living-tip-header h2.living-tip-title {
+  margin: 0;
+  border-bottom: none;
+  padding-bottom: 0;
+  font-size: 20px;
+  color: #166534 !important;
+}
+
+.living-tip-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.living-tip-index {
+  font-size: 0.85rem;
+  color: #166534;
+  font-weight: 700;
+  background: rgba(22, 163, 74, 0.1);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.living-tip-nav-button {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid #16a34a;
+  background: white;
+  color: #166534;
+  font-size: 1.1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.living-tip-nav-button:hover {
+  background: #16a34a;
+  color: white;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.2);
+}
+
+.living-tip-body {
+  font-size: 14.5px;
+  color: #374151;
+  line-height: 1.6;
+}
+
+.living-tip-subtitle {
+  font-size: 13px;
+  color: #15803d;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.living-tip-desc {
+  margin: 0 0 12px 0;
+}
+
+.living-tip-highlight {
+  color: #15803d;
+  font-weight: 800;
+  font-size: 16px;
+  background: rgba(22, 163, 74, 0.08);
+  padding: 2px 6px;
+  border-radius: 6px;
+  border: 1px dashed rgba(22, 163, 74, 0.2);
+}
+
+.living-tip-meta {
+  font-size: 11.5px;
+  color: #6b7280;
+}
+
+.living-tip-empty {
+  color: #9ca3af;
+  text-align: center;
+  padding: 16px 0;
+  font-weight: 700;
+}
+
+/* 리빙 포인트 애니메이션 타이머 및 일시정지 컨트롤 */
+.living-tip-progress {
+  --progress: 0%;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: conic-gradient(#16a34a var(--progress), rgba(22, 163, 74, 0.14) 0);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.1s linear;
+}
+
+.living-tip-progress-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: #fff;
+}
+
+.living-tip-pause-button {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid #16a34a;
+  background: white;
+  color: #166534;
+  font-size: 0.9rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.living-tip-pause-button:hover {
+  background: #16a34a;
+  color: white;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.2);
 }

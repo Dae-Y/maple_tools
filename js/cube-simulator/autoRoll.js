@@ -29,8 +29,9 @@ window.autoRoll = (function() {
       // 1. Perform 3 rolls (doOneRollStep equivalents)
       const rolled = onRollFn();
       if (!rolled) {
-        stop();
-        alert("재설정 중 오류가 발생했거나 해당 조합의 데이터가 존재하지 않습니다.");
+        isRunning = false;
+        timerId = null;
+        window.dispatchEvent(new CustomEvent("cubeSim:autoRollEnd", { detail: { reached: false, error: true } }));
         return;
       }
 
@@ -47,7 +48,6 @@ window.autoRoll = (function() {
       const stats = window.cubeSimulatorState.getStats();
       if (stats.rollCount >= maxRolls) {
         isRunning = false;
-        alert("자동 돌리기 최대 제한(10만 회)에 도달하여 정지했습니다.");
         window.dispatchEvent(new CustomEvent("cubeSim:autoRollEnd", { detail: { reached: false, limit: true } }));
         return;
       }
