@@ -35,6 +35,9 @@ window.cubeSimulatorState = (function () {
   let logEntries = [];
   let logVisible = false;
 
+  let pendingAutoRollSuccessCandidate = null;
+  let pendingAutoRollSuccessBatch = null;
+
   // 1. Initial Loader
   window.addEventListener("DOMContentLoaded", async () => {
     try {
@@ -131,6 +134,11 @@ window.cubeSimulatorState = (function () {
           window.autoRoll.stop();
           showStatusMsg("⚠️ 자동 돌리기를 중단했습니다.", "warning");
         } else {
+          if (pendingAutoRollSuccessCandidate) {
+            applyCandidateAsCurrentOption(pendingAutoRollSuccessCandidate);
+            pendingAutoRollSuccessCandidate = null;
+            pendingAutoRollSuccessBatch = null;
+          }
           startAutoRollSequence();
         }
       });
@@ -183,8 +191,11 @@ window.cubeSimulatorState = (function () {
 
         showStatusMsg("목표 옵션 달성! 재설정을 중단합니다.", "success");
 
-        // Auto-select the successful candidate
-        setTimeout(() => chooseCandidate(idx), 800);
+        pendingAutoRollSuccessCandidate = rollCandidates[idx].map(l => ({ ...l }));
+        pendingAutoRollSuccessBatch = rollCandidates.map(c => c.map(l => ({ ...l })));
+
+        rollCandidates = pendingAutoRollSuccessBatch.map(c => c.map(l => ({ ...l })));
+        renderAllBoxes();
       } else if (detail.limit) {
         showStatusMsg("⚠️ 최대 반복 횟수(10만 회)에 도달했지만 목표 옵션을 달성하지 못했습니다.", "warning");
       } else if (detail.error) {
@@ -265,6 +276,9 @@ window.cubeSimulatorState = (function () {
     const partsType = getSelectedPartsType();
     const reqLev = getSelectedLevel();
 
+    pendingAutoRollSuccessCandidate = null;
+    pendingAutoRollSuccessBatch = null;
+
     // Rebuild exact line targets dynamically
     window.cubeGoals.populateLineTargetSelects(cubeItemID, partsType, reqLev);
 
@@ -325,32 +339,20 @@ window.cubeSimulatorState = (function () {
     return true;
   }
 
+  function applyCandidateAsCurrentOption(candidate) {
+    currentLines = candidate.map(l => ({ ...l }));
+    rollCandidates = [[], [], []];
+    renderAllBoxes();
+  }
+
   function chooseCandidate(index) {
     const cand = rollCandidates[index];
     if (!cand || !cand.length) return;
 
-    const candBoxId = `box-roll${index + 1}`;
-    const candEl = document.getElementById(candBoxId);
-    const currentEl = document.getElementById("box-current");
+    pendingAutoRollSuccessCandidate = null;
+    pendingAutoRollSuccessBatch = null;
 
-    // Fade animation trigger
-    candEl.classList.remove("fade-out-card");
-    void candEl.offsetWidth;
-    candEl.classList.add("fade-out-card");
-
-    candEl.addEventListener("animationend", () => {
-      candEl.classList.remove("fade-out-card");
-      currentLines = cand.map(l => ({ ...l }));
-      rollCandidates = [[], [], []];
-      renderAllBoxes();
-
-      currentEl.classList.remove("fade-in-card");
-      void currentEl.offsetWidth;
-      currentEl.classList.add("fade-in-card");
-      currentEl.addEventListener("animationend", () => {
-        currentEl.classList.remove("fade-in-card");
-      }, { once: true });
-    }, { once: true });
+    applyCandidateAsCurrentOption(cand);
   }
 
   function handleReset() {

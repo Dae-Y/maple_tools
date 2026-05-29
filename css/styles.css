@@ -123,8 +123,19 @@ label span {
   background: white;
 }
 
-h1 {
+.hero-title-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
   margin: 10px 0 0;
+}
+
+.hero-title-row h1 {
+  margin: 0;
+}
+
+h1 {
   font-size: clamp(30px, 4.5vw, 48px);
   line-height: 1.1;
   letter-spacing: -0.03em;
@@ -135,7 +146,7 @@ h1 {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  margin-left: 12px;
+  margin: 0;
   padding: 7px 11px;
   border-radius: 999px;
   font-size: clamp(14px, 2vw, 18px);
@@ -861,17 +872,6 @@ th {
 }
 
 @media (max-width: 620px) {
-  .creator {
-    margin-left: 0;
-    margin-top: 12px;
-  }
-
-  h1 {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
   .brand-line {
     font-size: 12px;
   }
@@ -2229,44 +2229,121 @@ button.save-button {
   color: #5b21b6;
 }
 
-/* 좁은 화면에서는 왼쪽 말풍선이 화면 밖으로 나갈 수 있어서 아래로 fallback */
-@media (max-width: 760px) {
-  .support-menu {
-    top: calc(100% + 8px);
-    right: 0;
-    transform: none;
-  }
-
-  .support-menu::after {
-    top: -6px;
-    right: 24px;
-    transform: rotate(-45deg);
-  }
-}
-
 /* 768px 이하 모바일 디바이스 반응형 대응 */
 @media (max-width: 768px) {
   .hero-main-row {
-    flex-wrap: wrap;
-    gap: 18px;
+    position: relative;
+    display: block;
+    min-height: 160px;
+  }
+
+  .hero-text-block {
+    position: relative;
+    z-index: 2;
+    max-width: 65%;
+    margin-bottom: 24px;
   }
 
   .hero-character {
-    width: clamp(90px, 24vw, 130px);
+    position: absolute;
+    right: 12px;
+    left: auto;
+    bottom: auto;
+    top: 24px;
+    width: clamp(74px, 22vw, 112px);
+    z-index: 1;
   }
 
   .hero-side-block {
     margin-left: 0;
     width: 100%;
     align-items: flex-start;
+    position: relative;
+    z-index: 3;
   }
 
   .support-menu-wrap {
-    align-items: center;
+    align-items: flex-start;
   }
 
   .support-menu {
-    right: 50%;
-    transform: translateX(50%);
+    top: 50%;
+    left: calc(100% + 10px);
+    right: auto;
+    transform: translateY(-50%);
+    min-width: 126px;
+    max-width: 150px;
+  }
+
+  .support-menu::after {
+    left: -6px;
+    right: auto;
+    top: 50%;
+    transform: translateY(-50%) rotate(225deg);
+  }
+}
+
+/* 아주 좁은 화면 대응 */
+@media (max-width: 420px) {
+  .hero-text-block {
+    max-width: 72%;
+  }
+
+  .hero-character {
+    width: 72px;
+    right: 8px;
+    top: 24px;
+    opacity: 0.92;
+  }
+
+  .support-menu {
+    top: calc(100% + 8px);
+    left: 0;
+    right: auto;
+    transform: none;
+    min-width: 130px;
+  }
+
+  .support-menu::after {
+    display: none;
+  }
+}
+/* 큐브 시뮬레이터 현황 및 로그 그리드 */
+.cube-status-log-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .cube-status-log-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 모바일 화면에서 제목과 제작자 뱃지가 같은 줄에 유지되도록 설정 */
+@media (max-width: 760px) {
+  .hero-title-row {
+    gap: 10px;
+    flex-wrap: nowrap;
+  }
+
+  .hero-title-row h1 {
+    white-space: nowrap;
+  }
+
+  .hero-title-row .creator {
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 360px) {
+  .hero-title-row {
+    flex-wrap: wrap;
+  }
+
+  .hero-title-row h1 {
+    white-space: normal;
   }
 }
