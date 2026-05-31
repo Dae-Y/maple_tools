@@ -3,6 +3,8 @@
 메이플스토리 관련 계산기와 시뮬레이터를 모아둔 정적 웹 도구함입니다.  
 GitHub Pages에서 HTML/CSS/JavaScript만으로 동작합니다.
 
+AI-readable project summary: [`llms.txt`](./llms.txt)
+
 ## 배포 링크
 
 - 메이플 도구함: https://dae-y.github.io/maple_tools/

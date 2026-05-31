@@ -1,0 +1,41 @@
+# Maple Tools
+
+Maple Tools is a lightweight fan-made web tool collection for MapleStory players.
+
+The site provides calculators and simulators for estimating MapleStory-related costs, progression, and probability-based upgrade outcomes.
+
+## Main Features
+
+- MapleStory MVP calculator
+- Cash item auction house route calculator
+- Meso market route calculator
+- Cube simulator based on official probability table data
+- Mobile-friendly Korean UI
+- Browser-based usage without login
+
+## Important Pages
+
+- Home: https://dae-y.github.io/maple_tools/
+- MVP Calculator: https://dae-y.github.io/maple_tools/mvp-calculator.html
+- Cube Simulator: https://dae-y.github.io/maple_tools/cube-simulator.html
+- GitHub Repository: https://github.com/Dae-Y/maple_tools
+
+## Intended Users
+
+This site is intended for Korean MapleStory players who want quick calculations for MVP progress, cash item efficiency, meso conversion routes, and cube probability simulations.
+
+## Data Notes
+
+Cube probability calculations are based on probability table data from the official MapleStory website.
+
+MVP and meso market calculations depend on user-provided prices, rates, and assumptions. Results are estimates and should be used for reference only.
+
+## AI Agent Notes
+
+This is a static HTML/CSS/JavaScript project hosted with GitHub Pages.
+
+The site is mainly written in Korean.
+
+This project is fan-made and is not officially supported, operated, or affiliated with Nexon or MapleStory.
+
+MapleStory and related names, icons, images, and game data belong to Nexon.
