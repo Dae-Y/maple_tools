@@ -2295,19 +2295,8 @@ button.save-button {
     top: 24px;
     opacity: 0.92;
   }
-
-  .support-menu {
-    top: calc(100% + 8px);
-    left: 0;
-    right: auto;
-    transform: none;
-    min-width: 130px;
-  }
-
-  .support-menu::after {
-    display: none;
-  }
 }
+
 /* 큐브 시뮬레이터 현황 및 로그 그리드 */
 .cube-status-log-grid {
   display: grid;
